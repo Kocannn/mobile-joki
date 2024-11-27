@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">iCnema_UTS</string>
+
+
+<integer-array name="data_photo">
+<item >@drawable/afilm1</item>
+<item>@drawable/afilm2</item>
+<item>@drawable/afilm3</item>
+<item>@drawable/afilm3</item>
+<item>@drawable/afilm4</item>
+<item>@drawable/afilm5</item>
+<item>@drawable/afilm6</item>
+<item>@drawable/afilm7</item>
+<item>@drawable/afilm8</item>
+</integer-array>
+</resources>
