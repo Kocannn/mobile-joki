@@ -15,13 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-
     private Context context;
     private List<Movie> movieList;
+    private boolean isFromBeranda;
 
-    public MovieAdapter(Context context, List<Movie> movieList) {
+    public MovieAdapter(Context context, List<Movie> movieList, boolean isFromBeranda) {
         this.context = context;
         this.movieList = movieList;
+        this.isFromBeranda = isFromBeranda;
     }
 
     @NonNull
@@ -31,7 +32,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return new MovieViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
@@ -40,18 +40,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         String imageUrl = "https://image.tmdb.org/t/p/w500" + movie.getPosterPath();
         Glide.with(context).load(imageUrl).into(holder.movieImage);
 
-        // Set click listener
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetailActivity.class);
             intent.putExtra("title", movie.getTitle());
             intent.putExtra("overview", movie.getOverview());
             intent.putExtra("release_date", movie.getReleaseDate());
             intent.putExtra("poster_path", imageUrl);
+            intent.putExtra("is_from_beranda", isFromBeranda); // Pass the flag
             context.startActivity(intent);
         });
     }
-
-
 
     @Override
     public int getItemCount() {
