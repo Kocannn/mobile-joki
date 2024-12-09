@@ -2,6 +2,7 @@ package com.semesta.icnema_uts;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,8 +34,15 @@ public class BookingDialogFragment extends DialogFragment {
     private List<String> selectedSeats = new ArrayList<>();
     private static final int PRICE_PER_SEAT = 50000; // Harga per kursi
 
-    public static BookingDialogFragment newInstance() {
-        return new BookingDialogFragment();
+    public static BookingDialogFragment newInstance(String title, String overview, String releaseDate, String imageUrl) {
+        BookingDialogFragment fragment = new BookingDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("title", title);
+        args.putString("overview", overview);
+        args.putString("release_date", releaseDate);
+        args.putString("image_url", imageUrl);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -56,13 +64,41 @@ public class BookingDialogFragment extends DialogFragment {
             if (selectedSeats.isEmpty() || selectedTime.isEmpty()) {
                 Toast.makeText(getContext(), "Pilih waktu dan kursi terlebih dahulu!", Toast.LENGTH_SHORT).show();
             } else {
-                // Show success message
-                Toast.makeText(getContext(), "Pesanan telah berhasil dibuat!", Toast.LENGTH_SHORT).show();
-                // Generate QR Code or proceed with booking
-                generateQRCode();
+                // Check if seats are already booked
+                DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+                String releaseDate = getArguments().getString("release_date");
+                boolean seatAlreadyBooked = false;
+                for (String seat : selectedSeats) {
+                    if (dbHelper.isSeatBooked(seat, releaseDate, selectedTime)) {
+                        seatAlreadyBooked = true;
+                        break;
+                    }
+                }
+
+                if (seatAlreadyBooked) {
+                    Toast.makeText(getContext(), "Kursi sudah dipesan, pilih kursi lain!", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Show success message
+                    Toast.makeText(getContext(), "Pesanan telah berhasil dibuat!", Toast.LENGTH_SHORT).show();
+
+                    // Save booking to database
+                    String seats = selectedSeats.toString();
+                    int totalPrice = selectedSeats.size() * PRICE_PER_SEAT;
+
+                    // Retrieve movie details from arguments
+                    String title = getArguments().getString("title");
+                    String overview = getArguments().getString("overview");
+                    String imageUrl = getArguments().getString("image_url");
+
+                    Log.d("BookingDialogFragment", "Inserting booking with image URL: " + imageUrl);
+
+                    dbHelper.insertBooking(title, overview, releaseDate, selectedTime, seats, totalPrice, imageUrl);
+
+                    // Close the dialog
+                    dismiss();
+                }
             }
         });
-
         return view;
     }
 
@@ -76,6 +112,7 @@ public class BookingDialogFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedTime = times[position];
+                setupGridView(); // Refresh grid view when time is selected
             }
 
             @Override
@@ -97,16 +134,36 @@ public class BookingDialogFragment extends DialogFragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, seats);
         gridViewSeats.setAdapter(adapter);
 
+        DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+        String releaseDate = getArguments().getString("release_date");
+
         gridViewSeats.setOnItemClickListener((parent, view, position, id) -> {
             String seat = seats.get(position);
-            if (selectedSeats.contains(seat)) {
-                selectedSeats.remove(seat);
-                view.setBackgroundColor(Color.TRANSPARENT);  // Deselect seat
+            if (dbHelper.isSeatBooked(seat, releaseDate, selectedTime)) {
+                Toast.makeText(getContext(), "Kursi sudah dipesan, pilih kursi lain!", Toast.LENGTH_SHORT).show();
             } else {
-                selectedSeats.add(seat);
-                view.setBackgroundColor(Color.LTGRAY);  // Select seat
+                if (selectedSeats.contains(seat)) {
+                    selectedSeats.remove(seat);
+                    view.setBackgroundColor(Color.TRANSPARENT);  // Deselect seat
+                } else {
+                    selectedSeats.add(seat);
+                    view.setBackgroundColor(Color.LTGRAY);  // Select seat
+                }
+                updatePrice();
             }
-            updatePrice();
+        });
+
+        // Mark already booked seats
+        gridViewSeats.post(() -> {
+            for (int i = 0; i < seats.size(); i++) {
+                String seat = seats.get(i);
+                if (dbHelper.isSeatBooked(seat, releaseDate, selectedTime)) {
+                    View seatView = gridViewSeats.getChildAt(i);
+                    if (seatView != null) {
+                        seatView.setBackgroundColor(Color.RED);  // Mark booked seat
+                    }
+                }
+            }
         });
     }
 
@@ -114,13 +171,6 @@ public class BookingDialogFragment extends DialogFragment {
         int totalPrice = selectedSeats.size() * PRICE_PER_SEAT;
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
         textPrice.setText("Harga: Rp. " + numberFormat.format(totalPrice));
-    }
-
-    private void generateQRCode() {
-        // Generate QR Code or proceed with booking logic
-        String bookingInfo = "Waktu: " + selectedTime + "\nKursi: " + selectedSeats.toString();
-        QRCodeDialogFragment qrCodeDialog = QRCodeDialogFragment.newInstance(bookingInfo);
-        qrCodeDialog.show(getParentFragmentManager(), "QRCodeDialog");
     }
 
     @Override

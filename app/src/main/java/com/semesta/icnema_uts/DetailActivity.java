@@ -42,7 +42,8 @@ public class DetailActivity extends AppCompatActivity {
 
         buttonBookTicket.setOnClickListener(v -> {
             // Show Booking Dialog
-            BookingDialogFragment bookingDialog = BookingDialogFragment.newInstance();
+            BookingDialogFragment bookingDialog = BookingDialogFragment.newInstance(
+                    title, overview, releaseDate, imageUrl);
             bookingDialog.show(getSupportFragmentManager(), "BookingDialog");
         });
     }
