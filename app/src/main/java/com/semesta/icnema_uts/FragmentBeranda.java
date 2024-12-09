@@ -11,15 +11,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FragmentBeranda extends Fragment {
 
     private View view;
     private RecyclerView recyclerView;
     private MovieAdapter adapter;
-    private List<Movie> movieList;
 
     public FragmentBeranda() {}
 
@@ -28,27 +30,32 @@ public class FragmentBeranda extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.beranda, container, false);
 
-        // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView_movies);
-
-        // Set LayoutManager
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2)); // 2 columns
 
-        // Initialize Movie List
-        movieList = new ArrayList<>();
-        movieList.add(new Movie("La La Land", R.drawable.afilm1));
-        movieList.add(new Movie("The Joker", R.drawable.afilm2));
-        movieList.add(new Movie("Pulp Fiction", R.drawable.afilm3));
-        movieList.add(new Movie("FightClub", R.drawable.afilm4));
-        movieList.add(new Movie("Inglorious Basterd", R.drawable.afilm5));
-        movieList.add(new Movie("Ocean 8", R.drawable.afilm6));
-        movieList.add(new Movie("Oppenheimer", R.drawable.afilm7));
-        movieList.add(new Movie("Arcane", R.drawable.afilm8));
-
-        // Set Adapter
-        adapter = new MovieAdapter(getContext(), movieList);
-        recyclerView.setAdapter(adapter);
+        fetchMovies();
 
         return view;
+    }
+
+    private void fetchMovies() {
+        MovieApi movieApi = ApiClient.getClient().create(MovieApi.class);
+        Call<MovieResponse> call = movieApi.getNowPlayingMovies();
+
+        call.enqueue(new Callback<MovieResponse>() {
+            @Override
+            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Movie> movies = response.body().getResults();
+                    adapter = new MovieAdapter(getContext(), movies);
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieResponse> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }

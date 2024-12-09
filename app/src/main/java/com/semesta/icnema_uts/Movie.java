@@ -1,18 +1,24 @@
 package com.semesta.icnema_uts;
+
 public class Movie {
     private String title;
-    private int imageResource;
-
-    public Movie(String title, int imageResource) {
-        this.title = title;
-        this.imageResource = imageResource;
-    }
+    private String poster_path;
+    private String overview;
+    private String release_date;
 
     public String getTitle() {
         return title;
     }
 
-    public int getImageResource() {
-        return imageResource;
+    public String getPosterPath() {
+        return poster_path;
+    }
+
+    public String getOverview() {
+        return overview;
+    }
+
+    public String getReleaseDate() {
+        return release_date;
     }
 }

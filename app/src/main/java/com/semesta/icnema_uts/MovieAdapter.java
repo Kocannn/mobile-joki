@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,12 +30,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return new MovieViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
         holder.movieTitle.setText(movie.getTitle());
-        holder.movieImage.setImageResource(movie.getImageResource());
+
+        String imageUrl = "https://image.tmdb.org/t/p/w500" + movie.getPosterPath();
+        Glide.with(context).load(imageUrl).into(holder.movieImage);
     }
+
 
     @Override
     public int getItemCount() {
