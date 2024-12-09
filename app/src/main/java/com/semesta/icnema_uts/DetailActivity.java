@@ -46,7 +46,9 @@ public class DetailActivity extends AppCompatActivity {
         if (isFromBeranda) {
             buttonBookTicket.setVisibility(View.VISIBLE);
             buttonBookTicket.setOnClickListener(v -> {
-                Toast.makeText(this, "Now Playing Movie Clicked", Toast.LENGTH_SHORT).show();
+                BookingDialogFragment bookingDialog = BookingDialogFragment.newInstance(
+                        title, overview, releaseDate, imageUrl);
+                bookingDialog.show(getSupportFragmentManager(), "BookingDialog");
             });
         } else {
             buttonBookTicket.setVisibility(View.GONE);
