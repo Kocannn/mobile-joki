@@ -47,7 +47,7 @@ public class FragmentBeranda extends Fragment {
             public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Movie> movies = response.body().getResults();
-                    adapter = new MovieAdapter(getContext(), movies);
+                    adapter = new MovieAdapter(getContext(), movies, true); // Pass true for FragmentBeranda
                     recyclerView.setAdapter(adapter);
                 }
             }
