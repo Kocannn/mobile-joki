@@ -1,11 +1,13 @@
 package com.semesta.icnema_uts;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,12 +31,27 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return new MovieViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
         holder.movieTitle.setText(movie.getTitle());
-        holder.movieImage.setImageResource(movie.getImageResource());
+
+        String imageUrl = "https://image.tmdb.org/t/p/w500" + movie.getPosterPath();
+        Glide.with(context).load(imageUrl).into(holder.movieImage);
+
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("title", movie.getTitle());
+            intent.putExtra("overview", movie.getOverview());
+            intent.putExtra("release_date", movie.getReleaseDate());
+            intent.putExtra("poster_path", imageUrl);
+            context.startActivity(intent);
+        });
     }
+
+
 
     @Override
     public int getItemCount() {
