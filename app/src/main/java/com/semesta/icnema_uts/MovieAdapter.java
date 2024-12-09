@@ -1,6 +1,7 @@
 package com.semesta.icnema_uts;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,18 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         String imageUrl = "https://image.tmdb.org/t/p/w500" + movie.getPosterPath();
         Glide.with(context).load(imageUrl).into(holder.movieImage);
+
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailActivity.class);
+            intent.putExtra("title", movie.getTitle());
+            intent.putExtra("overview", movie.getOverview());
+            intent.putExtra("release_date", movie.getReleaseDate());
+            intent.putExtra("poster_path", imageUrl);
+            context.startActivity(intent);
+        });
     }
+
 
 
     @Override
