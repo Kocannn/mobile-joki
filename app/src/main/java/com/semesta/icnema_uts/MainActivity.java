@@ -37,12 +37,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(1).setIcon(R.drawable.ic_bioskop);
         tabLayout.getTabAt(2).setIcon(R.drawable.ic_tiket);
 
-        locationSpinner = findViewById(R.id.location_spinner);
-        String[] locations = {"Palu", "Makassar", "Manado", "Surabaya"};
-        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, locations);
-        locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        locationSpinner.setAdapter(locationAdapter);
-
         // Set up SearchView listener
         SearchView searchView = findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
